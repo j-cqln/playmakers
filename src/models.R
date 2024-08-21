@@ -39,15 +39,15 @@ process_data <- function(d, season) {
            in_zone = shotPlayContinuedInZone,
            out_zone = shotPlayContinuedOutsideZone,
            shot_type = shotType) %>%
-    filter(!is.na(shooter)) %>%
+    filter(!is.na(shooter) & event %in% c("SHOT", "GOAL")) %>%
     mutate(season = as.numeric(season),
            id = row_number(),
-           team = ifelse(team == 'HOME', home_team_code, away_team_code),
-           is_home_team = ifelse(team == 'HOME', 1, 0),
+           team = ifelse(team == "HOME", home_team_code, away_team_code),
+           is_home_team = ifelse(team == "HOME", 1, 0),
            goal_diff = ifelse(is_home_team == 1,
                               homeTeamGoals - awayTeamGoals,
                               awayTeamGoals - homeTeamGoals),
-           event = 'shot',
+           event = "shot",
            goalie = ifelse(!is.na(goalie), goalie, ''),
            play_stopped = ifelse((frozen == 1) | (stopped == 1), 1, 0),
            time_since_last = ifelse(time_since_last <= last_event_time_cutoff,
@@ -55,9 +55,9 @@ process_data <- function(d, season) {
                                     time_since_last_default),
            last_event = ifelse(time_since_last <= last_event_time_cutoff,
                                last_event,
-                               'none'),
-           last_event = ifelse(is.na(last_event), 'none', last_event),
-           last_event_team = ifelse(last_event == 'none', NA, last_event_team))
+                               "none"),
+           last_event = ifelse(is.na(last_event), "none", last_event),
+           last_event_team = ifelse(last_event == "none", NA, last_event_team))
   
   x <- d$adj_x
   y <- d$adj_y
@@ -140,7 +140,6 @@ write.csv(data, "data/processed_shots.csv", row.names = FALSE)
 
 # Build models
 model_data <- process_model_data(data)
-model_data <- head(model_data, 40000)
 
 xg_model <- model(model_data, model_data$goal)
 model_data$xg <- predict(xg_model, model_data,
@@ -171,3 +170,13 @@ model_data <- model_data %>%
 
 # Save model data
 write.csv(model_data, "data/model_data.csv", row.names = FALSE)
+
+# AUC & log loss
+xg_auc <- auc(xg_model)
+xg_logloss <- logLoss(model_data$goal, model_data$xg)
+
+xrebounds_auc <- auc(xrebounds_model)
+xrebounds_logloss <- logLoss(model_data$creates_rebound_shot, model_data$xrebounds)
+
+xrebound_value_auc <- auc(xrebound_value_model)
+xrebound_value_logloss <- logLoss(model_data$rebound_goal, model_data$xrebound_value)
