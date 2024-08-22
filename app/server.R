@@ -1,3 +1,5 @@
+ranks <- read.csv("data/ranks.csv")
+
 server <- function(input, output, session) {
   data <- reactive({
     ranks %>% filter(season == input$year)

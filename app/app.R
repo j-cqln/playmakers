@@ -1,7 +1,8 @@
 library(shiny)
 library(leaflet)
-library(DT)
 
+library(dplyr)
+library(DT)
 library(readr)
 
 FIRST_YEAR <- 2021

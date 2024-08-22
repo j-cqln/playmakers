@@ -1,3 +1,6 @@
+FIRST_YEAR <- 2021
+LAST_YEAR <- 2023
+
 ui <- fluidPage(
   titlePanel("Playmakers"),
   
