@@ -15,14 +15,6 @@ server <- function(input, output, session) {
     ranks %>% filter(season == input$year)
   })
   
-  output$box <- renderUI({
-    img(src = paste0(input$year, "_box.png"), height = "400px")
-  })
-  
-  output$quality <- renderUI({
-    img(src = paste0(input$year, "_quality.png"), height = "400px")
-  })
-  
   output$forwards <- renderDataTable({
     r <- data() %>%
       filter(position_group == "F") %>%
@@ -51,6 +43,14 @@ server <- function(input, output, session) {
                                 scrollY = "250px")) %>%
       formatRound("avg_xRebounds", digits = 3) %>%
       formatRound("avg_xRV", digits = 3)
+  })
+  
+  output$box <- renderUI({
+    img(src = paste0(input$year2, "_box.png"), height = "400px")
+  })
+  
+  output$quality <- renderUI({
+    img(src = paste0(input$year2, "_quality.png"), height = "400px")
   })
   
   observe({
@@ -105,7 +105,7 @@ ui <- fluidPage(
                  p("Data from MoneyPuck.com."),
                  br(),
                  
-                 selectInput(inputId = "year",
+                 selectInput(inputId = "year2",
                              label = "Season",
                              choices = c(FIRST_YEAR:LAST_YEAR),
                              selected = LAST_YEAR)
